@@ -1,12 +1,15 @@
+# notes:
+# - When running against the image build with buildx it seems that docker can't find the image:
+#     https://github.com/wagoodman/anchore-engine/runs/3633243352?check_suite_focus=true
 name: "Release"
 on:
   push:
-    # take no actions on push to any branch...
-    branches-ignore:
-      - "**"
-    # ... only act on release tags
-    tags:
-      - "v*"
+    # # take no actions on push to any branch...
+    # branches-ignore:
+    #   - "**"
+    # # ... only act on release tags
+    # tags:
+    #   - "v*"
 
 jobs:
 
@@ -39,6 +42,10 @@ jobs:
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           build-args: |
             CLI_COMMIT=17164d36f833341390ba4ec4a187c9f3a97b3540
+
+      - name: Show image
+        run: |
+          docker images
 
       # This ugly bit is necessary if you don't want your cache to grow forever
       # till it hits GitHub's limit of 5GB.
