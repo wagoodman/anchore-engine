@@ -1,0 +1,24 @@
+name: "Release"
+on:
+  push:
+    # take no actions on push to any branch...
+    branches-ignore:
+      - "**"
+    # ... only act on release tags
+    tags:
+      - "v*"
+
+jobs:
+
+  release:
+    needs: [quality-gate]
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: anchore/sbom-action@main
+        with:
+          artifact_name: sbom.spdx
