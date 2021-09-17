@@ -1,6 +1,8 @@
 # notes:
 # - When running against the image build with buildx it seems that docker can't find the image:
 #     https://github.com/wagoodman/anchore-engine/runs/3633243352?check_suite_focus=true
+#   there was a helpful warning message for me:
+#   time="2021-09-17T14:30:54Z" level=warning msg="No output specified for docker-container driver. Build result will only remain in the build cache. To push result image into registry use --push or to load image into docker use --load"
 name: "Release"
 on:
   push:
@@ -24,22 +26,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # - name: Cache Docker layers
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: /tmp/.buildx-cache
-      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
           push: false
+          load: true
           tags: localhost/anchore-engine:latest
-          # cache-from: type=local,src=/tmp/.buildx-cache
-          # cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
           build-args: |
             CLI_COMMIT=17164d36f833341390ba4ec4a187c9f3a97b3540
 
@@ -47,15 +50,15 @@ jobs:
         run: |
           docker images
 
-      # # This ugly bit is necessary if you don't want your cache to grow forever
-      # # till it hits GitHub's limit of 5GB.
-      # # Temp fix
-      # # https://github.com/docker/build-push-action/issues/252
-      # # https://github.com/moby/buildkit/issues/1896
-      # - name: Move cache
-      #   run: |
-      #     rm -rf /tmp/.buildx-cache
-      #     mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      # This ugly bit is necessary if you don't want your cache to grow forever
+      # till it hits GitHub's limit of 5GB.
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - uses: anchore/sbom-action@main
         with:
