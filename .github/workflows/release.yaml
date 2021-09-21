@@ -95,6 +95,6 @@ jobs:
           artifact-name: sbom.spdx
           # image: localhost/anchore-engine:latest
 
-      # - uses: anchore/sbom-action/attach@main
-      #   with:
-      #     sbom-artifact-match: ".*\\.spdx$"
+      - uses: anchore/sbom-action/attach@main
+        with:
+          sbom-artifact-match: ".*\\.spdx$"
