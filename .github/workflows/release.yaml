@@ -17,12 +17,12 @@ name: "Release"
 on:
   release:
   push:
-    # # take no actions on push to any branch...
-    # branches-ignore:
-    #   - "**"
-    # # ... only act on release tags
-    # tags:
-    #   - "v*"
+    # take no actions on push to any branch...
+    branches-ignore:
+      - "**"
+    # ... only act on release tags
+    tags:
+      - "v*"
 
 jobs:
 
